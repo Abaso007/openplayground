@@ -75,11 +75,11 @@ class Storage:
             models_json_path = os.path.join(APP_DIR, 'models.json')
 
         original_models_json = None
-        if not pkg_resources.is_resource('server', 'models.json'):
-            original_models_json = open('./models.json').read()
-        else:
-            original_models_json = pkg_resources.read_text('server', 'models.json')
-
+        original_models_json = (
+            pkg_resources.read_text('server', 'models.json')
+            if pkg_resources.is_resource('server', 'models.json')
+            else open('./models.json').read()
+        )
         if not os.path.exists(os.path.join(APP_DIR, 'models.json')):
             with open(os.path.join(APP_DIR, 'models.json'), 'w') as f:
                 f.write(original_models_json)
@@ -88,7 +88,7 @@ class Storage:
 
             with open(os.path.join(APP_DIR, 'models.json'), 'r') as f:
                 cached_models_json = json.load(f)
- 
+
                 cached_providers = cached_models_json.keys()
                 original_providers = original_models_json.keys()
 
@@ -96,7 +96,7 @@ class Storage:
 
                 for provider in provider_in_original_not_cache:
                     cached_models_json[provider] = original_models_json[provider]
-                
+
                 cached_providers = cached_models_json.keys()
 
                 for cached_provider in cached_providers:
@@ -235,24 +235,24 @@ class Storage:
 
         self.event_emitter.emit(EVENTS.SAVED_TO_DISK)
 
-    def import_config(config_path: str):
+    def import_config(self):
         '''
         Imports the models.json file from the specified path
         '''
-        if not os.path.exists(config_path):
-            raise FileNotFoundError(f'{config_path} not found')
-        
-        with open(config_path, 'r') as f:
+        if not os.path.exists(self):
+            raise FileNotFoundError(f'{self} not found')
+
+        with open(self, 'r') as f:
             with open(os.path.join(APP_DIR, 'models.json'), 'w') as f2:
                 f2.write(f.read())
 
-    def export_config(output_path: str):
+    def export_config(self):
         '''
         Exports the models.json file to the specified path
         '''
         if not os.path.exists(os.path.join(APP_DIR, 'models.json')):
             raise FileNotFoundError('models.json not found')
-        
+
         with open(os.path.join(APP_DIR, 'models.json'), 'r') as f:
-            with open(output_path, 'w') as f2:
+            with open(self, 'w') as f2:
                 f2.write(f.read())

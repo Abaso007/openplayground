@@ -74,9 +74,10 @@ def validate_parameters(model, parameters):
         value = parameters[parameter]
         parameter_range = default_parameters[parameter]["range"]
 
-        if len(parameter_range) == 2:
-            if value < parameter_range[0] or value > parameter_range[1]:
-                return False
+        if len(parameter_range) == 2 and (
+            value < parameter_range[0] or value > parameter_range[1]
+        ):
+            return False
     return True
 
 def stream_response(global_state, uuid):

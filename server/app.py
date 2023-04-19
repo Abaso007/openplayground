@@ -210,23 +210,20 @@ class DownloadManager:
         # TODO: In the future it might make sense to have local provider specific instances
         cache_info = scan_cache_dir()
         hugging_face_local = self.storage.get_provider("huggingface-local")
- 
+
         for repo_info in cache_info.repos:
             repo_id = repo_info.repo_id
             repo_type = repo_info.repo_type
-            if repo_type == "model":
-                if hugging_face_local.has_model(repo_id):
-                    continue
-                else:
-                    model = Model(
-                        name=repo_id,
-                        capabilities=hugging_face_local.default_capabilities,
-                        provider="huggingface-local",
-                        status="ready",
-                        enabled=False,
-                        parameters=hugging_face_local.default_parameters
-                    )
-                    hugging_face_local.add_model(model)
+            if repo_type == "model" and not hugging_face_local.has_model(repo_id):
+                model = Model(
+                    name=repo_id,
+                    capabilities=hugging_face_local.default_capabilities,
+                    provider="huggingface-local",
+                    status="ready",
+                    enabled=False,
+                    parameters=hugging_face_local.default_parameters
+                )
+                hugging_face_local.add_model(model)
 
         t = threading.Thread(target=self.__download_loop__)
         t.start()
